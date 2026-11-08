@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hostel Mess Management System</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f5;
+            color: #26352d;
+        }
+
+        .header, .footer {
+            background-color: #17664d;
+            color: white;
+            padding: 15px 8%;
+            text-align: center;
+        }
+
+        .container {
+            width: 85%;
+            margin: 25px auto;
+        }
+
+        .hero {
+            background-color: #104936;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            margin-top: 25px;
+            margin-bottom: 12px;
+        }
+
+        .day-tabs button {
+            padding: 10px 14px;
+            margin: 4px;
+            border: 1px solid #ccc;
+            background-color: white;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .day-tabs button:hover {
+            background-color: #17664d;
+            color: white;
+        }
+
+        .card {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            margin-bottom: 12px;
+        }
+
+        .card h3 {
+            color: #17664d;
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+
+        .special {
+            background-color: #fff5dc;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e7ad3d;
+            margin-top: 15px;
+        }
+
+        select, textarea {
+            width: 98%;
+            padding: 10px;
+            margin-top: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        .submit-btn {
+            background-color: #17664d;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2>🍽️ Hostel Mess - Student Portal</h2>
+    </div>
+
+    <div class="container">
+        <div class="hero">
+            <h1>Know Your Menu. Share Your Feedback.</h1>
+            <p>View the weekly mess schedule, check today's special, and rate your meals.</p>
+        </div>
+
+        <h2>Weekly Meal Menu (<span id="currentDay">Monday</span>)</h2>
+        <div class="day-tabs">
+            <button onclick="showDay(0)">Monday</button>
+            <button onclick="showDay(1)">Tuesday</button>
+            <button onclick="showDay(2)">Wednesday</button>
+            <button onclick="showDay(3)">Thursday</button>
+            <button onclick="showDay(4)">Friday</button>
+            <button onclick="showDay(5)">Saturday</button>
+            <button onclick="showDay(6)">Sunday</button>
+        </div>
+
+        <div class="card">
+            <h3>🍳 Breakfast (7:30 AM)</h3>
+            <p id="bMeal"></p>
+        </div>
+        <div class="card">
+            <h3>🍛 Lunch (12:30 PM)</h3>
+            <p id="lMeal"></p>
+        </div>
+        <div class="card">
+            <h3>🥪 Evening Snacks (4:30 PM)</h3>
+            <p id="sMeal"></p>
+        </div>
+        <div class="card">
+            <h3>🥘 Dinner (7:30 PM)</h3>
+            <p id="dMeal"></p>
+        </div>
+
+        <div class="special">
+            <h3>⭐ Today's Special: <span id="specialName"></span></h3>
+            <p><b>Nutritional Note:</b> <span id="specialNote"></span></p>
+        </div>
+
+        <h2>Meal Feedback</h2>
+        <div class="card">
+            <label><b>Select Meal</b></label>
+            <select id="mealType">
+                <option value="">Choose Meal</option>
+                <option value="Breakfast">Breakfast</option>
+                <option value="Lunch">Lunch</option>
+                <option value="Evening Snacks">Evening Snacks</option>
+                <option value="Dinner">Dinner</option>
+            </select>
+
+            <label><b>Rating</b></label>
+            <select id="rating">
+                <option value="">Select Stars</option>
+                <option value="★★★★★">★★★★★ (5 Stars)</option>
+                <option value="★★★★☆">★★★★☆ (4 Stars)</option>
+                <option value="★★★☆☆">★★★☆☆ (3 Stars)</option>
+                <option value="★★☆☆☆">★★☆☆☆ (2 Stars)</option>
+                <option value="★☆☆☆☆">★☆☆☆☆ (1 Star)</option>
+            </select>
+
+            <label><b>Review / Suggestions</b></label>
+            <textarea id="reviewText" rows="3" placeholder="Write your feedback here..."></textarea>
+
+            <button type="button" class="submit-btn" onclick="submitFeedback()">Submit Feedback</button>
+            <p id="message" style="font-weight: bold; color: #17664d;"></p>
+        </div>
+
+        <h2>Latest Review (Total Submitted: <span id="reviewCount">0</span>)</h2>
+        <div class="card">
+            <h3 id="rTitle">No reviews yet</h3>
+            <p id="rComment">Your submitted feedback will appear here.</p>
+            <p id="rDay"></p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Hostel Mess Management System | Better Meals Start With Your Feedback</p>
+    </div>
+
+    <script>
+        var days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+        var specials = ["Kheer", "Fruit Bowl", "Paneer Tikka", "Sweet Lassi", "Veg Pulao", "Special Thali", "Gulab Jamun"];
+        var notes = [
+            "Rich in calcium, carbohydrates, and quick energy (Approx. 250 kcal).",
+            "Packed with vitamins, dietary fiber, and natural antioxidants (Approx. 120 kcal).",
+            "High in protein, calcium, and healthy fats for muscle repair (Approx. 280 kcal).",
+            "Good source of probiotics for digestion and bone-healthy calcium (Approx. 180 kcal).",
+            "Balanced mix of complex carbohydrates, vegetables, and essential minerals (Approx. 220 kcal).",
+            "Complete balanced meal with proteins, fiber, carbs, and vitamins (Approx. 550 kcal).",
+            "High-energy festive treat rich in carbohydrates and simple sugars (Approx. 300 kcal)."
+        ];
+        var breakfasts = ["Aloo Paratha, Curd & Tea", "Poha, Banana & Milk", "Masala Dosa & Sambar", "Bread, Butter & Milk", "Chole Kulche & Tea", "Veg Upma & Tea", "Chole Bhature & Curd"];
+        var lunches = ["Dal Tadka, Rice & Roti", "Rajma, Rice & Roti", "Kadhi Pakora, Rice & Roti", "Veg Pulao, Dal Fry & Raita", "Kadhi, Rice & Roti", "Dal Makhani, Rice & Roti", "Veg Biryani & Raita"];
+        var snacks = ["Veg Sandwich & Tea", "Veg Noodles & Tea", "Veg Burger & Tea", "Samosa & Chutney", "Veg Pizza & Juice", "Masala Fries & Tea", "Cake & Cold Drink"];
+        var dinners = ["Mix Veg, Chapati & Kheer", "Chana Masala, Roti & Raita", "Paneer Bhurji, Roti & Dal", "Aloo Gobi, Dal & Roti", "Veg Noodles & Manchurian", "Special Thali with Dessert", "Seasonal Veg, Dal & Roti"];
+
+        var activeDay = "Monday";
+        var count = 0;
+
+        function showDay(index) {
+            activeDay = days[index];
+            document.getElementById("currentDay").innerHTML = days[index];
+            document.getElementById("bMeal").innerHTML = breakfasts[index];
+            document.getElementById("lMeal").innerHTML = lunches[index];
+            document.getElementById("sMeal").innerHTML = snacks[index];
+            document.getElementById("dMeal").innerHTML = dinners[index];
+            document.getElementById("specialName").innerHTML = specials[index];
+            document.getElementById("specialNote").innerHTML = notes[index];
+        }
+
+        function submitFeedback() {
+            var meal = document.getElementById("mealType").value;
+            var stars = document.getElementById("rating").value;
+            var comment = document.getElementById("reviewText").value;
+
+            if (meal === "" || stars === "") {
+                document.getElementById("message").innerHTML = "Please select both a meal and a rating.";
+                return;
+            }
+
+            count = count + 1;
+            document.getElementById("reviewCount").innerHTML = count;
+
+            document.getElementById("rTitle").innerHTML = meal + " (" + stars + ")";
+            document.getElementById("rComment").innerHTML = comment;
+            document.getElementById("rDay").innerHTML = "Day: " + activeDay;
+
+            document.getElementById("mealType").value = "";
+            document.getElementById("rating").value = "";
+            document.getElementById("reviewText").value = "";
+            document.getElementById("message").innerHTML = "Feedback submitted!";
+        }
+
+        showDay(0);
+    </script>
+</body>
+</html>
